@@ -1,4 +1,3 @@
-const socket = io();
 const connectButton = document.getElementById('connectButton');
 const disconnectButton = document.getElementById('disconnectButton');
 const portSelect = document.getElementById('portSelect');
@@ -60,7 +59,6 @@ setBaudRateButton.addEventListener('click', () => {
   if (baudRateValue) {
     baudRate = parseInt(baudRateValue, 10);
     alert(`Baud rate set to ${baudRate}`);
-    socket.emit('setBaudRate', baudRate);
   } else {
     alert('Please enter baud rate');
   }
@@ -169,7 +167,6 @@ async function readPort(reader, portNumber) {
               return;
             }
             console.log(`Data received from port ${portNumber + 1}: ${completeMessage}`);
-            socket.emit('message', { message: completeMessage, port: portNumber + 1, baudRate: baudRate });
             displayMessage(completeMessage, 'received');
           }
         }
@@ -243,23 +240,6 @@ function displayMessage(message, type = 'received') {
   }
 }
 
-importFile.addEventListener('change', (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const messages = JSON.parse(e.target.result);
-        importMessages(messages);
-      } catch (error) {
-        console.error('JSON parse error:', error);
-        alert('Invalid JSON file');
-      }
-    };
-    reader.readAsText(file);
-  }
-});
-
 function parseMessage(message) {
   console.log(`Parsing message: ${message}`);
   const commaIndex = message.indexOf(',');
@@ -274,27 +254,6 @@ function parseMessage(message) {
 function generateUniquePortId() {
   return 'port-' + (portIds.length + 1);
 }
-
-socket.on('disconnectAll', (reason) => {
-  alert(reason);
-  disconnectAllPorts();
-});
-
-socket.on('randomNumber', (number) => {
-  console.log(`Random number received: ${number}`);
-  displayMessage(number, 'received');
-});
-
-socket.on('message', (data) => {
-  if (!baudRate || ports.length === 0) {
-    console.warn('Received message but no baud rate set or no port connected.');
-    return;
-  }
-
-  console.log(`Message received: ${data.message}`);
-  displayMessage(data.message, 'received');
-});
-
 
 function addToMessageList(message, type, number) {
   const messageList = document.getElementById('messageList');
@@ -375,16 +334,6 @@ function resendMessage(message) {
   sendMessage(message);
 }
 
-function binaryToAscii(binaryStr) {
-  let asciiStr = '';
-  for (let i = 0; i < binaryStr.length; i += 8) {
-    let byte = binaryStr.slice(i, i + 8);
-    let charCode = parseInt(byte, 2);
-    asciiStr += String.fromCharCode(charCode);
-  }
-  return asciiStr;
-}
-
 async function sendMessage(message, isPortMessage = false) {
   if (!baudRate || ports.length === 0) {
     alert('Please set the baud rate and connect to a serial port before sending a message.');
@@ -404,18 +353,12 @@ async function sendMessage(message, isPortMessage = false) {
   const data = new TextEncoder().encode(message + '\n');
 
   try {
-    if (isPortMessage) {
-      for (let i = 0; i < writers.length; i++) {
-        if (activePorts[portIds[i]]) {
-          await writers[i].write(data);
-          console.log(`Message sent from Port ${portIds[i]} with baud rate ${baudRate}: ${message}`);
-          displayMessage(message, 'sent'); // Gönderilen mesajı 'sent' olarak işaretle
-          socket.emit('message', { message, port: portIds[i], baudRate: baudRate });
-        }
+    for (let i = 0; i < writers.length; i++) {
+      if (activePorts[portIds[i]]) {
+        await writers[i].write(data);
+        console.log(`Message sent from Port ${portIds[i]} with baud rate ${baudRate}: ${message}`);
+        displayMessage(message, 'sent'); // Gönderilen mesajı 'sent' olarak işaretle
       }
-    } else {
-      displayMessage(message, 'sent');
-      socket.emit('message', { message });
     }
   } catch (error) {
     console.error('Error sending message:', error);
@@ -426,7 +369,7 @@ form.addEventListener('submit', (e) => {
   e.preventDefault();
   let message = document.getElementById('message').value.trim();
   if (message) {
-    sendMessage(message);
+    sendMessage(message, true); // Mesaj gönderiminde isPortMessage parametresini true olarak ayarla
     document.getElementById('message').value = '';
   }
 });
