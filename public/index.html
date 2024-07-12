@@ -5,6 +5,9 @@
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+    <nav class="navbar">
+        <a href="#uart-viewer" class="nav-link" id="uartLink">TTL Data Viewer</a>
+    </nav>
     <div id="uart-viewer" class="tab-content active">
         <div class="container">
             <h1>TTL Data Viewer
@@ -38,6 +41,7 @@
             <input type="file" id="importFile" style="display: none;" accept=".json"> <!-- Hidden file input -->
         </div>
     </div>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
