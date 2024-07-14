@@ -39,10 +39,6 @@ body {
   width: 100%;
 }
 
-#messageListContainer, .message-box-container {
-  width: 48%;
-}
-
 h1, h2 {
   font-family: "Georgia", serif;
   color: #333;
