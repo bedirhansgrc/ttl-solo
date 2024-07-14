@@ -3,6 +3,7 @@
 <head>
     <title>TTL Data Viewer</title>
     <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="uart-viewer" class="tab-content active">
@@ -25,18 +26,20 @@
                 <button type="submit">Send</button>
             </form>
         </div>
-
-        <div id="messageListContainer">
-            <h2>Message List</h2>
-            <div class="message-list-header">
-                <div class="header-number">No</div>
-                <div class="header-message">Messages</div>
+        <div class="container">
+            <div id="messageListContainer">
+                <h2>Message List</h2>
+                <div class="message-list-header">
+                    <div class="header-number">No</div>
+                    <div class="header-message">Messages</div>
+                </div>
+                <div id="messageList" class="message-box"></div>
+                <button id="exportButton" class="export-button">EXPORT</button>
+                <button id="importButton" class="import-button">IMPORT</button> 
+                <input type="file" id="importFile" style="display: none;" accept=".json"> <!-- Hidden file input -->
             </div>
-            <div id="messageList" class="message-box"></div>
-            <button id="exportButton" class="export-button">EXPORT</button>
-            <button id="importButton" class="import-button">IMPORT</button> 
-            <input type="file" id="importFile" style="display: none;" accept=".json"> <!-- Hidden file input -->
         </div>
+        
     </div>
     <script src="script.js"></script>
 </body>
